@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nossa História de Amor</title>
+    <meta name="description" content="Um espaço especial para celebrar nosso amor e momentos juntos.">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+        
+        .font-dancing {
+            font-family: 'Dancing Script', cursive;
+        }
+        
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 105, 180, 0.6);
+            transform: rotate(45deg);
+            animation: heartfloat 15s linear infinite;
+        }
+        
+        .heart:before,
+        .heart:after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 105, 180, 0.6);
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .heart:before {
+            top: -10px;
+            left: 0;
+        }
+        
+        .heart:after {
+            top: 0;
+            left: -10px;
+        }
+        
+        @keyframes heartfloat {
+            0% {
+                transform: rotate(45deg) translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: rotate(45deg) translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        .photo-card {
+            transition: all 0.3s ease;
+        }
+        
+        .photo-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .quote-card {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 to-purple-100 min-h-screen font-poppins">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Floating Hearts -->
+        <div class="hearts-container fixed inset-0 pointer-events-none overflow-hidden">
+            <div v-for="heart in hearts" :key="heart.id" class="heart" :style="heart.style"></div>
+        </div>
+        
+        <header class="text-center mb-12 relative">
+            <h1 class="text-5xl font-bold text-pink-600 mb-4 font-dancing">Nossa História de Amor</h1>
+            <p class="text-gray-600 text-xl">Um espaço especial só nosso</p>
+        </header>
+        
+        <div class="max-w-5xl mx-auto">
+            <!-- Hero Section -->
+            <div class="bg-white bg-opacity-80 rounded-lg shadow-lg p-8 mb-12 text-center">
+                <h2 class="text-3xl font-dancing text-pink-600 mb-6">Nosso Cantinho Especial</h2>
+                <p class="text-gray-700 mb-6">Este é um lugar para guardarmos nossas memórias, momentos especiais e todo o amor que compartilhamos juntos. Cada foto, cada palavra, cada momento é uma parte da nossa história.</p>
+                <div class="flex justify-center">
+                    <button @click="addPhoto" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-full transition duration-200 mr-4">
+                        Adicionar Foto
+                    </button>
+                    <button @click="addQuote" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-full transition duration-200">
+                        Adicionar Frase
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Music Section -->
+            <div class="bg-white bg-opacity-80 rounded-lg shadow-lg p-8 mb-12">
+                <h2 class="text-3xl font-dancing text-pink-600 mb-6 text-center">Nossa Música</h2>
+                
+                <div class="text-center mb-6">
+                    <p class="text-gray-700 mb-4">Adicione uma música especial que te lembra dela</p>
+                </div>
+                
+                <div class="flex flex-col items-center">
+                    <div v-if="spotifyUrl" class="w-full max-w-xl mb-6">
+                        <div class="bg-black rounded-lg overflow-hidden shadow-lg">
+                            <iframe :src="spotifyEmbedUrl" width="100%" height="152" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-gray-700 italic font-dancing text-xl">{{ musicDedication }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full max-w-xl">
+                        <input v-model="spotifyUrl" type="text" placeholder="Cole o link do Spotify aqui" class="border rounded-lg p-3 w-full mb-3">
+                        <textarea v-model="musicDedication" placeholder="Por que essa música te lembra dela?" class="border rounded-lg p-3 w-full h-24 mb-3"></textarea>
+                        <button @click="saveMusic" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-full transition duration-200 w-full">
+                            Salvar Nossa Música
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Photos Section -->
+            <div class="mb-16">
+                <h2 class="text-3xl font-dancing text-pink-600 mb-8 text-center">Nossos Momentos Especiais</h2>
+                
+                <div v-if="photos.length === 0" class="text-center py-10 bg-white bg-opacity-70 rounded-lg">
+                    <p class="text-gray-500">Adicione suas fotos favoritas para começar a construir suas memórias.</p>
+                </div>
+                
+                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-for="(photo, index) in photos" :key="index" class="photo-card bg-white rounded-lg overflow-hidden shadow-md">
+                        <div class="relative pb-2/3 h-64">
+                            <img :src="photo.url" :alt="photo.caption" class="absolute h-full w-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-700">{{ photo.caption }}</p>
+                            <p class="text-gray-500 text-sm mt-2">{{ photo.date }}</p>
+                            <button @click="removePhoto(index)" class="mt-3 text-pink-500 hover:text-pink-700 text-sm">Remover</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quotes Section -->
+            <div class="mb-16">
+                <h2 class="text-3xl font-dancing text-pink-600 mb-8 text-center">Frases de Amor</h2>
+                
+                <div v-if="quotes.length === 0" class="text-center py-10 bg-white bg-opacity-70 rounded-lg">
+                    <p class="text-gray-500">Adicione frases especiais que representam seu amor.</p>
+                </div>
+                
+                <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div v-for="(quote, index) in quotes" :key="index" class="quote-card rounded-lg p-6 shadow-md">
+                        <p class="text-gray-700 italic mb-4 font-dancing text-xl">"{{ quote.text }}"</p>
+                        <p class="text-right text-gray-500">{{ quote.author }}</p>
+                        <button @click="removeQuote(index)" class="mt-3 text-pink-500 hover:text-pink-700 text-sm">Remover</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Special Dates -->
+            <div class="bg-white bg-opacity-80 rounded-lg shadow-lg p-8 mb-12">
+                <h2 class="text-3xl font-dancing text-pink-600 mb-6 text-center">Nossas Datas Especiais</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-pink-100 rounded-lg p-4 text-center">
+                        <h3 class="font-bold text-pink-700 mb-2">Primeiro Encontro</h3>
+                        <input v-model="specialDates.firstDate" type="date" class="border rounded p-2 w-full text-center">
+                    </div>
+                    
+                    <div class="bg-pink-100 rounded-lg p-4 text-center">
+                        <h3 class="font-bold text-pink-700 mb-2">Aniversário de Namoro</h3>
+                        <input v-model="specialDates.anniversary" type="date" class="border rounded p-2 w-full text-center">
+                    </div>
+                    
+                    <div class="bg-pink-100 rounded-lg p-4 text-center">
+                        <h3 class="font-bold text-pink-700 mb-2">Data Especial</h3>
+                        <input v-model="specialDates.special" type="date" class="border rounded p-2 w-full text-center">
+                        <input v-model="specialDates.specialName" placeholder="Nome da data especial" class="border rounded p-2 w-full text-center mt-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Photo Upload Modal -->
+        <div v-if="showPhotoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h3 class="text-2xl font-dancing text-pink-600 mb-4">Adicionar Nova Foto</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">URL da Foto</label>
+                    <input v-model="newPhoto.url" type="text" placeholder="Cole o link da imagem aqui" class="border rounded p-2 w-full">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Legenda</label>
+                    <input v-model="newPhoto.caption" type="text" placeholder="Descreva este momento especial" class="border rounded p-2 w-full">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Data</label>
+                    <input v-model="newPhoto.date" type="date" class="border rounded p-2 w-full">
+                </div>
+                
+                <div class="flex justify-end">
+                    <button @click="cancelPhotoAdd" class="text-gray-600 mr-4">Cancelar</button>
+                    <button @click="confirmAddPhoto" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded transition duration-200">Adicionar</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quote Add Modal -->
+        <div v-if="showQuoteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h3 class="text-2xl font-dancing text-pink-600 mb-4">Adicionar Nova Frase</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Frase</label>
+                    <textarea v-model="newQuote.text" placeholder="Digite uma frase especial" class="border rounded p-2 w-full h-32"></textarea>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Autor</label>
+                    <input v-model="newQuote.author" type="text" placeholder="Quem disse esta frase?" class="border rounded p-2 w-full">
+                </div>
+                
+                <div class="flex justify-end">
+                    <button @click="cancelQuoteAdd" class="text-gray-600 mr-4">Cancelar</button>
+                    <button @click="confirmAddQuote" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded transition duration-200">Adicionar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const { createApp, ref, onMounted, computed } = Vue;
+
+        createApp({
+            setup() {
+                const photos = ref([]);
+                const quotes = ref([]);
+                const hearts = ref([]);
+                const showPhotoModal = ref(false);
+                const showQuoteModal = ref(false);
+                const newPhoto = ref({ url: '', caption: '', date: '' });
+                const newQuote = ref({ text: '', author: '' });
+                const specialDates = ref({
+                    firstDate: '',
+                    anniversary: '',
+                    special: '',
+                    specialName: 'Data Especial'
+                });
+                const spotifyUrl = ref('');
+                const musicDedication = ref('');
+
+                // Create floating hearts
+                onMounted(() => {
+                    createHearts();
+                    
+                    // Load saved data from localStorage
+                    const savedPhotos = localStorage.getItem('ourPhotos');
+                    if (savedPhotos) {
+                        photos.value = JSON.parse(savedPhotos);
+                    }
+                    
+                    const savedQuotes = localStorage.getItem('ourQuotes');
+                    if (savedQuotes) {
+                        quotes.value = JSON.parse(savedQuotes);
+                    }
+                    
+                    const savedDates = localStorage.getItem('ourDates');
+                    if (savedDates) {
+                        specialDates.value = JSON.parse(savedDates);
+                    }
+                    
+                    const savedMusic = localStorage.getItem('ourMusic');
+                    if (savedMusic) {
+                        const musicData = JSON.parse(savedMusic);
+                        spotifyUrl.value = musicData.url || '';
+                        musicDedication.value = musicData.dedication || '';
+                    }
+                });
+                
+                const spotifyEmbedUrl = computed(() => {
+                    if (!spotifyUrl.value) return '';
+                    // Convert spotify URL to embed URL
+                    let url = spotifyUrl.value;
+                    if (url.includes('spotify.com')) {
+                        // Replace spotify.com with open.spotify.com if needed
+                        url = url.replace('spotify.com', 'open.spotify.com');
+                        // Convert normal URL to embed URL
+                        url = url.replace('open.spotify.com/', 'open.spotify.com/embed/');
+                        return url;
+                    }
+                    return '';
+                });
+
+                function createHearts() {
+                    for (let i = 0; i < 20; i++) {
+                        const delay = Math.random() * 15;
+                        const size = Math.random() * 15 + 10;
+                        const startX = Math.random() * window.innerWidth;
+                        
+                        hearts.value.push({
+                            id: i,
+                            style: {
+                                left: `${startX}px`,
+                                bottom: '-20px',
+                                width: `${size}px`,
+                                height: `${size}px`,
+                                opacity: Math.random() * 0.5 + 0.3,
+                                animationDelay: `${delay}s`,
+                                animationDuration: `${15 + Math.random() * 15}s`
+                            }
+                        });
+                    }
+                }
+
+                function addPhoto() {
+                    showPhotoModal.value = true;
+                    newPhoto.value = { url: '', caption: '', date: new Date().toISOString().split('T')[0] };
+                }
+
+                function confirmAddPhoto() {
+                    if (newPhoto.value.url && newPhoto.value.caption) {
+                        photos.value.push({ ...newPhoto.value });
+                        showPhotoModal.value = false;
+                        savePhotos();
+                    }
+                }
+
+                function cancelPhotoAdd() {
+                    showPhotoModal.value = false;
+                }
+
+                function removePhoto(index) {
+                    photos.value.splice(index, 1);
+                    savePhotos();
+                }
+
+                function savePhotos() {
+                    localStorage.setItem('ourPhotos', JSON.stringify(photos.value));
+                }
+
+                function addQuote() {
+                    showQuoteModal.value = true;
+                    newQuote.value = { text: '', author: '' };
+                }
+
+                function confirmAddQuote() {
+                    if (newQuote.value.text) {
+                        quotes.value.push({ 
+                            text: newQuote.value.text, 
+                            author: newQuote.value.author || 'Anônimo' 
+                        });
+                        showQuoteModal.value = false;
+                        saveQuotes();
+                    }
+                }
+
+                function cancelQuoteAdd() {
+                    showQuoteModal.value = false;
+                }
+
+                function removeQuote(index) {
+                    quotes.value.splice(index, 1);
+                    saveQuotes();
+                }
+
+                function saveQuotes() {
+                    localStorage.setItem('ourQuotes', JSON.stringify(quotes.value));
+                }
+
+                // Watch for changes in special dates and save them
+                function saveDates() {
+                    localStorage.setItem('ourDates', JSON.stringify(specialDates.value));
+                }
+
+                function saveMusic() {
+                    localStorage.setItem('ourMusic', JSON.stringify({
+                        url: spotifyUrl.value,
+                        dedication: musicDedication.value
+                    }));
+                }
+
+                return {
+                    photos,
+                    quotes,
+                    hearts,
+                    showPhotoModal,
+                    showQuoteModal,
+                    newPhoto,
+                    newQuote,
+                    specialDates,
+                    spotifyUrl,
+                    spotifyEmbedUrl,
+                    musicDedication,
+                    addPhoto,
+                    confirmAddPhoto,
+                    cancelPhotoAdd,
+                    removePhoto,
+                    addQuote,
+                    confirmAddQuote,
+                    cancelQuoteAdd,
+                    removeQuote,
+                    saveDates,
+                    saveMusic
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
